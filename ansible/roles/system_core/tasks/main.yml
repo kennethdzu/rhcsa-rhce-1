@@ -1,0 +1,59 @@
+- name: Create Tuned Profile Directory
+  file:
+    path: "/etc/tuned/{{ tuned_profile }}"
+    state: directory
+
+- name: Deploy Tuned Config
+  template:
+    src: tuned.conf.j2
+    dest: "/etc/tuned/{{ tuned_profile }}/tuned.conf"
+  notify: Restart Tuned
+
+- name: Disk Provisioning
+  block:
+    - name: Create backing file
+      command: truncate -s 512M /var/lib/backup.img
+      args:
+        creates: /var/lib/backup.img
+    
+    - name: Format to XFS
+      filesystem:
+        fstype: xfs
+        dev: /var/lib/backup.img
+
+  rescue:
+    - name: Force format
+      filesystem:
+        fstype: xfs
+        dev: /var/lib/backup.img
+        force: yes
+
+- name: Deploy Mount Unit
+  template:
+    src: backup.mount.j2
+    dest: /etc/systemd/system/opt-backup.mount
+  notify: Reload Systemd
+
+- name: Ensuring Mount is Active
+  systemd:
+    name: opt-backup.mount
+    state: started
+    enabled: true
+
+- name: Deploy Backup Service
+  template:
+    src: backup.service.j2
+    dest: /etc/systemd/system/backup-job.service
+  notify: Reload
+
+- name: Deploy Backup Schedule
+  template:
+    src: backup.timer.j2
+    dest: /etc/systemd/system/backup-job.timer
+  notify: Restart Timer
+
+- name: Enable Timer
+  systemd:
+    name: backup-job.timer
+    state: started
+    enabled: yes

@@ -1,0 +1,7 @@
+[Unit]
+Description=Daily System Backup
+RequiresMountsFor={{ backup_path }}
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/tar -czf {{ backup_path }}/etc-backup.tar.gz /etc/fstab

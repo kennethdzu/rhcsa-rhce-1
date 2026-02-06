@@ -1,0 +1,13 @@
+[Unit]
+Description=Backup Storage Mount
+After=network-online.target
+Wants=network-online.target
+
+[Mount]
+What=/var/lib/backup.img
+Where={{ backup_path }}
+Type=xfs
+Options=loop
+
+[Install]
+WantedBy=multi-user.target

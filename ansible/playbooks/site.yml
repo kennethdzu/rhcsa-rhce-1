@@ -1,0 +1,6 @@
+- name: RHCE 10 Configuration
+  hosts: lab
+  become: true
+
+  roles:
+    - system_core

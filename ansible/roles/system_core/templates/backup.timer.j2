@@ -1,0 +1,11 @@
+[Unit]
+Description=Tiggers Backup Job Daily
+
+[Timer]
+OnBootSec=5min
+OnCalendar={{ backup_schedule }}
+Persistent=true
+Unit=backup-job.service
+
+[Install]
+WantedBy=timers.target

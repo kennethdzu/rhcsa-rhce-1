@@ -1,0 +1,17 @@
+- name: Reload Systemd
+  systemd:
+    daemon_reload: true
+
+- name: Reload
+  systemd:
+    daemon_reload: true
+
+- name: Restart Tuned
+  service:
+    name: tuned
+    state: restarted
+
+- name: Restart Timer
+  service:
+    name: backup-job.timer
+    state: restarted

@@ -1,0 +1,43 @@
+name: Config Validation
+
+on: [push, pull_request]
+jobs:
+  terraform-check:
+
+    name: Terraform Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init
+        run: terraform init -backend=false
+        working-directory: ./terraform
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+        working-directory: ./terraform
+
+      - name: Terraform validate
+        run: terraform validate
+        working-directory: ./terraform
+
+
+
+  ansible-check:
+    name: Ansible Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Tools
+        run: |
+          pip install ansible-core ansible-lint
+          ansible-galaxy collection install ansible.posix community.general
+
+      - name: Ansible Syntax Check
+        run: |
+          cd ansible
+          ansible-playbook playbooks/site.yml --syntax-check
